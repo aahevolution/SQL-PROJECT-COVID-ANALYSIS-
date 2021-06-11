@@ -1,0 +1,143 @@
+SELECT *
+From  [Portfolio Projects]..[Covid Death]
+where  continent is not NULL
+order by 3,4
+
+
+--SELECT *
+--From  [Portfolio Projects]..[Covid Vaccinations]
+--order by 3,4
+
+SELECT location, date, total_cases, new_cases, total_deaths, population
+From  [Portfolio Projects]..[Covid Death]
+order by 1,2
+
+SELECT location, date, total_cases, new_cases, total_deaths, (total_deaths/total_cases)*100 as DeathPercentage
+From  [Portfolio Projects]..[Covid Death]
+where location like '%india%'
+order by 1,2
+
+
+SELECT location, date, total_cases, new_cases, population, (total_cases/population)*100 as CovidPercentage
+From  [Portfolio Projects]..[Covid Death]
+--where location like '%india%'
+order by 1,2
+
+
+--countries with highest infection rate
+
+SELECT location, population, MAX(total_cases) as HighestInfectionCount, MAX((total_cases/population))*100 as PercentPopulationInfected
+From  [Portfolio Projects]..[Covid Death]
+--where location like '%india%'
+group by location,population
+order by PercentPopulationInfected desc
+
+--COUNTRIES WITH HIGHEST DEATH COUNT PER POPULATION
+
+
+SELECT location, MAX(cast(total_deaths as int)) as TotalDeathCount
+From  [Portfolio Projects]..[Covid Death]
+--where location like '%india%'
+where  continent is not NULL
+group by location
+order by TotalDeathCount desc
+
+
+--accurate with location results
+SELECT location, MAX(cast(total_deaths as int)) as TotalDeathCount
+From  [Portfolio Projects]..[Covid Death]
+--where location like '%india%'
+where  continent is NULL
+group by location
+order by TotalDeathCount desc
+
+--breaking down with continents
+SELECT continent, MAX(cast(total_deaths as int)) as TotalDeathCount
+From  [Portfolio Projects]..[Covid Death]
+--where location like '%india%'
+where  continent is not NULL
+group by continent
+order by TotalDeathCount desc
+
+
+--showing contitnents with highest death count per location
+
+SELECT continent, MAX(cast(total_deaths as int)) as TotalDeathCount
+From  [Portfolio Projects]..[Covid Death]
+--where location like '%india%'
+where  continent is not NULL
+group by continent
+order by TotalDeathCount desc
+
+--global numbers
+
+
+
+
+SELECT  date, SUM(new_cases) as total_cases, SUM(cast(new_deaths as int)) as total_deaths, SUM(cast(new_deaths as int)) / SUM(new_cases) * 100  as DEATHPERCENTAGE--total_cases, total_deaths, (total_deaths/total_cases)*100 as DeathPercentage
+From  [Portfolio Projects]..[Covid Death]
+-- where location like '%india%'
+where continent is not null
+group by date
+order by 1,2
+
+-- Total Population vs Vaccinations
+
+
+
+
+
+Select * 
+from [Portfolio Projects] .. [Covid Vaccinations] dea
+Join [Portfolio Projects] .. [Covid Death] vac
+	on dea.location = vac.location
+	and dea.date = dea.date
+
+
+Select SUM(new_cases) as total_cases, SUM(cast(new_deaths as int)) as total_deaths, SUM(cast(new_deaths as int))/SUM(New_Cases)*100 as DeathPercentage
+From PortfolioProject..CovidDeaths
+--Where location like '%states%'
+where continent is not null 
+--Group By date
+order by 1,2
+
+Select * 
+from [Portfolio Projects] .. [Covid Vaccinations] dea
+Join [Portfolio Projects] .. [Covid Death] vac
+	on dea.location = vac.location
+	and dea.date = dea.date
+
+
+
+Select * 
+from [Portfolio Projects] .. [Covid Vaccinations] vac
+Join [Portfolio Projects] .. [Covid Death] dea
+	on dea.location = vac.location
+	and dea.date = dea.date
+where dea.continent is not null 
+order by 1,2,3
+
+Select  dea.location, dea.date, dea.population, vac.new_vaccinations
+, SUM(CONVERT(int,vac.new_vaccinations)) OVER (Partition by dea.Location Order by dea.location, dea.Date) as RollingPeopleVaccinated
+--, (RollingPeopleVaccinated/population)*100
+
+
+
+-- Creating View to store data for later visualizations
+
+Create View PercentPopulationVaccinated as
+Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations
+, SUM(CONVERT(int,vac.new_vaccinations)) OVER (Partition by dea.Location Order by dea.location, dea.Date) as RollingPeopleVaccinated
+--, (RollingPeopleVaccinated/population)*100
+From PortfolioProject..CovidDeaths dea
+Join PortfolioProject..CovidVaccinations vac
+	On dea.location = vac.location
+	and dea.date = vac.date
+where dea.continent is not null 
+
+
+
+
+
+
+
